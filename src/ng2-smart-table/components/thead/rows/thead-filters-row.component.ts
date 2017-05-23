@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 import { Grid } from '../../../lib/grid';
+import { DataSource } from '../../../lib/data-source/data-source';
 
 @Component({
   selector: '[ng2-st-thead-filters-row]',
@@ -19,15 +20,17 @@ import { Grid } from '../../../lib/grid';
     </th>
     <th ng2-st-add-button *ngIf="grid.showActionColumn('right')"
                           [grid]="grid"
-                          [source]="source"                          
+                          [source]="source"
                           (create)="create.emit($event)">
     </th>
-    `
+  `,
 })
 export class TheadFitlersRowComponent {
 
   @Input() grid: Grid;
-  @Input() source: any;
+  @Input() source: DataSource;
+
   @Output() create = new EventEmitter<any>();
   @Output() filter = new EventEmitter<any>();
+
 }

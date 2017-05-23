@@ -1,11 +1,12 @@
-import { Component, Input, Output, EventEmitter, AfterViewInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 
 import { DataSource } from '../../lib/data-source/data-source';
 import { Column } from '../../lib/data-set/column';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
   selector: 'ng2-smart-table-filter',
-  styleUrls: ['filter.scss'],
+  styleUrls: ['./filter.component.scss'],
   template: `
     <div class="ng2-smart-filter" *ngIf="column.isFilterable" [ngSwitch]="column.getFilterType()">
       <select-filter *ngSwitchCase="'list'"
@@ -33,9 +34,9 @@ import { Column } from '../../lib/data-set/column';
                     (filter)="onFilter($event)">
       </input-filter>
     </div>
-  `
+  `,
 })
-export class FilterComponent implements AfterViewInit {
+export class FilterComponent implements OnChanges {
 
   @Input() column: Column;
   @Input() source: DataSource;
@@ -45,20 +46,36 @@ export class FilterComponent implements AfterViewInit {
 
   query: string = '';
 
-  ngAfterViewInit() {
-    this.source.onChanged().subscribe((elements) => {
-      let filterConf = this.source.getFilter();
-      if (filterConf && filterConf.filters && filterConf.filters.length === 0) {
-        this.query = '';
+  protected dataChangedSub: Subscription;
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.source) {
+      if (!changes.source.firstChange) {
+        this.dataChangedSub.unsubscribe();
       }
-    });
+      this.dataChangedSub = this.source.onChanged().subscribe((dataChanges) => {
+        const filterConf = this.source.getFilter();
+        if (filterConf && filterConf.filters && filterConf.filters.length === 0) {
+          this.query = '';
+
+          // add a check for existing filters an set the query if one exists for this column
+          // this covers instances where the filter is set by user code while maintaining existing functionality
+        } else if (filterConf && filterConf.filters && filterConf.filters.length > 0) {
+          filterConf.filters.forEach((k: any, v: any) => {
+            if (k.field == this.column.id) {
+              this.query = k.search;
+            }
+          });
+        }
+      });
+    }
   }
 
   onFilter(query: string) {
     this.source.addFilter({
       field: this.column.id,
       search: query,
-      filter: this.column.getFilterFunction()
+      filter: this.column.getFilterFunction(),
     });
   }
 }

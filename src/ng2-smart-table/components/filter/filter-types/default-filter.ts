@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
+import { Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 
 import { Column } from '../../../lib/data-set/column';
@@ -13,8 +13,9 @@ export class DefaultFilter implements Filter, OnDestroy {
   @Output() filter = new EventEmitter<string>();
 
   ngOnDestroy() {
-    if (this.changesSubscription)
+    if (this.changesSubscription) {
       this.changesSubscription.unsubscribe();
+    }
   }
 
   setFilter() {

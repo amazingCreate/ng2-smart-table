@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 import { Grid } from '../../../lib/grid';
 import { Row } from '../../../lib/data-set/row';
+import { DataSource } from '../../../lib/data-source/data-source';
 
 @Component({
   selector: 'ng2-st-tbody-edit-delete',
@@ -10,13 +11,13 @@ import { Row } from '../../../lib/data-set/row';
         [innerHTML]="grid.getSetting('edit.editButtonContent')" (click)="onEdit($event)"></a>
     <a href="#" *ngIf="grid.getSetting('actions.delete')" class="ng2-smart-action ng2-smart-action-delete-delete"
         [innerHTML]="grid.getSetting('delete.deleteButtonContent')" (click)="onDelete($event)"></a>
-  `
+  `,
 })
 export class TbodyEditDeleteComponent {
 
   @Input() grid: Grid;
   @Input() row: Row;
-  @Input() source: any;
+  @Input() source: DataSource;
   @Input() deleteConfirm: EventEmitter<any>;
   @Input() editConfirm: EventEmitter<any>;
 
@@ -33,7 +34,7 @@ export class TbodyEditDeleteComponent {
     if (this.grid.getSetting('mode') === 'external') {
       this.edit.emit({
         data: this.row.getData(),
-        source: this.source
+        source: this.source,
       });
     } else {
       this.grid.edit(this.row);
@@ -47,7 +48,7 @@ export class TbodyEditDeleteComponent {
     if (this.grid.getSetting('mode') === 'external') {
       this.delete.emit({
         data: this.row.getData(),
-        source: this.source
+        source: this.source,
       });
     } else {
       this.grid.delete(this.row, this.deleteConfirm);
